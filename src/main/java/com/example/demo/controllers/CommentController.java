@@ -56,39 +56,39 @@ public class CommentController {
         createCommentService.createComment(userId, postId, commentCreateDto);
     }
 
-    @PatchMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.OK)
     public void update(
-            @PathVariable Long id,
+            @PathVariable Long commentId,
             @PathVariable Long postId,
             @RequestBody CommentUpdateDto commentUpdateDto,
             Authentication authentication
     ) {
         Long userId = getUserIdFromAuthentication(authentication);
-        updateCommentService.updateComment(userId, id, postId, commentUpdateDto);
+        updateCommentService.updateComment(userId, commentId, postId, commentUpdateDto);
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id,
+    @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable Long commentId,
                        @PathVariable Long postId,
                        Authentication authentication) {
         Long userId = getUserIdFromAuthentication(authentication);
-        deleteCommentService.deleteComment(userId, postId, id);
+        deleteCommentService.deleteComment(userId, postId, commentId);
     }
 
-    @PostMapping("/{id}/like")
+    @PostMapping("/{commentId}/like")
     @ResponseStatus(HttpStatus.CREATED)
-    public void likeComment(Authentication authentication, @PathVariable Long id, @PathVariable Long postId) {
+    public void likeComment(Authentication authentication, @PathVariable Long commentId, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
-        likeCommentService.likeComment(userId, id, postId);
+        likeCommentService.likeComment(userId, commentId, postId);
     }
 
-    @PostMapping("/{id}/unlike")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unlikePost(Authentication authentication, @PathVariable Long id, @PathVariable Long postId) {
+    @PostMapping("/{commentId}/unlike")
+    @ResponseStatus(HttpStatus.OK)
+    public void unlikePost(Authentication authentication, @PathVariable Long commentId, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
-        likeCommentService.unlikeComment(userId, id, postId);
+        likeCommentService.unlikeComment(userId, commentId, postId);
     }
 
     private Long getUserIdFromAuthentication(Authentication authentication) {

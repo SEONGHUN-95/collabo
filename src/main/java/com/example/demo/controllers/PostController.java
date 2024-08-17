@@ -47,9 +47,9 @@ public class PostController {
         return postDtoList;
     }
 
-    @GetMapping("/{id}")
-    public PostDto getPost(@PathVariable Long id) {
-        PostDto postDto = getPostService.getPostDto(id);
+    @GetMapping("/{postId}")
+    public PostDto getPost(@PathVariable Long postId) {
+        PostDto postDto = getPostService.getPostDto(postId);
         return postDto;
     }
 
@@ -60,33 +60,33 @@ public class PostController {
         createPostService.createPost(userId, postCreateDto);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{postId}")
     public void updatePost(Authentication authentication,
-                           @PathVariable Long id,
+                           @PathVariable Long postId,
                            @RequestBody PostUpdateDto postUpdateDto) {
         Long userId = getUserIdFromAuthentication(authentication);
-        updatePostService.updatePost(userId, id, postUpdateDto);
+        updatePostService.updatePost(userId, postId, postUpdateDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePost(Authentication authentication, @PathVariable Long id) {
+    public void deletePost(Authentication authentication, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
-        deletePostService.deletePost(userId, id);
+        deletePostService.deletePost(userId, postId);
     }
 
-    @PostMapping("/{id}/like")
+    @PostMapping("/{postId}/like")
     @ResponseStatus(HttpStatus.CREATED)
-    public void likePost(Authentication authentication, @PathVariable Long id) {
+    public void likePost(Authentication authentication, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
-        likePostService.likePost(userId, id);
+        likePostService.likePost(userId, postId);
     }
 
-    @PostMapping("/{id}/unlike")
+    @PostMapping("/{postId}/unlike")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unlikePost(Authentication authentication, @PathVariable Long id) {
+    public void unlikePost(Authentication authentication, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
-        likePostService.unlikePost(userId, id);
+        likePostService.unlikePost(userId, postId);
     }
 
     @ExceptionHandler(PostNotFound.class)

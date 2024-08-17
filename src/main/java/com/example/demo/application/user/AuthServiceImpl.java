@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,9 +33,13 @@ public class AuthServiceImpl implements AuthService {
                             dto.getPassword()
                     )
             );
-            TokenDto tokenDto = new TokenDto(jwtUtil.createAccessToken(authentication),
-                    jwtUtil.createRefreshToken(authentication));
-            return tokenDto;
+            String accessToken = jwtUtil.createAccessToken(authentication);
+            String refreshToken = jwtUtil.createRefreshToken(authentication);
+
+            // Redis에 Refresh Token 저장
+            redisTemplate.opsForValue().set(authentication.getName(), refreshToken, jwtUtil.getRefreshTokenExpiry(), TimeUnit.MILLISECONDS);
+
+            return new TokenDto(accessToken, refreshToken);
         } catch (Exception e) {
             System.out.println("Authentication failed: " + e.getMessage());
             e.printStackTrace(); // 상세한 스택 트레이스 출력
@@ -59,9 +65,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     public void logout(LogoutRequestDto dto) {
-        jwtUtil.validateToken(dto.getAccessToken());
-        Authentication authentication = jwtUtil.getAuthentication(dto.getAccessToken());
+        Authentication authentication = jwtUtil.getAuthentication(dto.getRefreshToken());
+
+        String redisRefreshToken = redisTemplate.opsForValue().get(authentication.getName());
+
+        if (redisRefreshToken == null) {
+            throw new IllegalStateException("사용자의 토큰을 이미 redis에서 찾을 수 없습니다..");
+        }
+
         redisTemplate.delete(authentication.getName());
     }
+
 
 }
