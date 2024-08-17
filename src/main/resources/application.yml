@@ -25,8 +25,8 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
   token:
-    access_expiration_time: 86400000 # ??
-    refresh_expiration_time: 604800000 # 7?
+    access_expiration_time: 86400000 # 1 day in milliseconds
+    refresh_expiration_time: 604800000 # 7 days in milliseconds
 
 logging:
   file:
@@ -34,4 +34,6 @@ logging:
     max-size: 10MB
     max-history: 30
 
-
+server:
+  address: 0.0.0.0
+  port: 8080
