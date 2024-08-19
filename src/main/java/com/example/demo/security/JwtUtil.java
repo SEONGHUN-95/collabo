@@ -47,7 +47,7 @@ public class JwtUtil {
     }
 
     /**
-     * Access 토큰 생성
+     * Access 토큰 생성, auth 객체의 name은 email
      */
     public String createAccessToken(Authentication authentication) {
         Claims claims = Jwts.claims().setSubject(authentication.getName());
@@ -97,7 +97,7 @@ public class JwtUtil {
     }
 
     /**
-     * 토큰으로부터 클레임을 만들고, 이를 통해 User 객체 생성해 Authentication 객체 반환
+     * 토큰으로부터 클레임을 만들고, 이를 통해  객체 생성해 Authentication 객체 반환
      */
     public Authentication getAuthentication(String token) {
         String userPrincipal = Jwts.parser().

@@ -12,6 +12,8 @@ import com.example.demo.dtos.PostUpdateDto;
 import com.example.demo.exceptions.AuthenticationException;
 import com.example.demo.exceptions.PostNotFound;
 import com.example.demo.security.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -33,6 +35,7 @@ import java.util.List;
 @RequestMapping("/posts")
 @CrossOrigin
 @RequiredArgsConstructor
+@Tag(name = "게시글 API")
 public class PostController {
     private final GetPostsService getPostsService;
     private final GetPostService getPostService;
@@ -42,12 +45,14 @@ public class PostController {
     private final LikePostService likePostService;
 
     @GetMapping
+    @Operation(summary = "전체 posts 받아오기", description = "jwt의 name과 postdto의 email을 대조하여 수정/삭제 버튼 구현 필요")
     public List<PostDto> getPosts() {
         List<PostDto> postDtoList = getPostsService.getPostDtos();
         return postDtoList;
     }
 
     @GetMapping("/{postId}")
+    @Operation(summary = "특정 게시글 받아오기", description = "jwt의 name과 postdto의 email을 대조하여 수정/삭제 버튼 구현 필요")
     public PostDto getPost(@PathVariable Long postId) {
         PostDto postDto = getPostService.getPostDto(postId);
         return postDto;
@@ -55,12 +60,15 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "게시글 쓰기")
     public void createPost(Authentication authentication, @RequestBody PostCreateDto postCreateDto) {
         Long userId = getUserIdFromAuthentication(authentication);
         createPostService.createPost(userId, postCreateDto);
     }
 
     @PatchMapping("/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "게시글 수정", description ="postId로 수정할 게시글 지정")
     public void updatePost(Authentication authentication,
                            @PathVariable Long postId,
                            @RequestBody PostUpdateDto postUpdateDto) {
@@ -70,6 +78,7 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "게시글 삭제")
     public void deletePost(Authentication authentication, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
         deletePostService.deletePost(userId, postId);
@@ -77,6 +86,7 @@ public class PostController {
 
     @PostMapping("/{postId}/like")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "게시글 좋아요")
     public void likePost(Authentication authentication, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
         likePostService.likePost(userId, postId);
@@ -84,6 +94,7 @@ public class PostController {
 
     @PostMapping("/{postId}/unlike")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "게시글 좋아요 취소")
     public void unlikePost(Authentication authentication, @PathVariable Long postId) {
         Long userId = getUserIdFromAuthentication(authentication);
         likePostService.unlikePost(userId, postId);
@@ -94,6 +105,7 @@ public class PostController {
     public String postNotFound() {
         return "게시물을 찾을 수 없습니다.";
     }
+
 
     private Long getUserIdFromAuthentication(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
