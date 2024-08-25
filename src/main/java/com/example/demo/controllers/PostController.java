@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.application.image.S3ImageService;
 import com.example.demo.application.post.CreatePostService;
 import com.example.demo.application.post.DeletePostService;
 import com.example.demo.application.post.GetPostService;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,8 +28,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,6 +47,7 @@ public class PostController {
     private final UpdatePostService updatePostService;
     private final DeletePostService deletePostService;
     private final LikePostService likePostService;
+    private final S3ImageService s3ImageService;
 
     @GetMapping
     @Operation(summary = "전체 posts 받아오기", description = "jwt의 name과 postdto의 email을 대조하여 수정/삭제 버튼 구현 필요")
@@ -58,24 +63,28 @@ public class PostController {
         return postDto;
     }
 
-    @PostMapping
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "게시글 쓰기")
-    public void createPost(Authentication authentication, @RequestBody PostCreateDto postCreateDto) {
+    public void createPost(Authentication authentication,
+                           @RequestPart("post") PostCreateDto postCreateDto,
+                           @RequestPart("images") List<MultipartFile> images) {
         Long userId = getUserIdFromAuthentication(authentication);
+        postCreateDto.setImages(images);
         createPostService.createPost(userId, postCreateDto);
     }
 
     @PatchMapping("/{postId}")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "게시글 수정", description ="postId로 수정할 게시글 지정")
+    @Operation(summary = "게시글 수정 (**수정중입니다 08/25)", description = "postId로 수정할 게시글 지정")
     public void updatePost(Authentication authentication,
                            @PathVariable Long postId,
-                           @RequestBody PostUpdateDto postUpdateDto) {
+                           @RequestPart(value = "post", required = false) PostUpdateDto postUpdateDto,
+                           @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages) {
         Long userId = getUserIdFromAuthentication(authentication);
+        postUpdateDto.setNewImages(newImages);  // 새로 추가된 이미지를 DTO에 설정
         updatePostService.updatePost(userId, postId, postUpdateDto);
     }
-
     @DeleteMapping("/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "게시글 삭제")
@@ -126,3 +135,4 @@ public class PostController {
         return userId;
     }
 }
+

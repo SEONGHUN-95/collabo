@@ -1,12 +1,20 @@
 package com.example.demo.dtos;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
-public record PostCreateDto(
-        @NotBlank
-        String title,
-        @NotBlank
-        String content
-) {
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class PostCreateDto {
+    private String title;
+    private String content;
+    private List<MultipartFile> images;
 
 }

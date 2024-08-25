@@ -8,6 +8,7 @@ import com.example.demo.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final RedisTemplate<String, String> redisTemplate;
+
 
     @Transactional
     public TokenDto login(LoginRequestDto dto) {
@@ -40,10 +42,15 @@ public class AuthServiceImpl implements AuthService {
             redisTemplate.opsForValue().set(authentication.getName(), refreshToken, jwtUtil.getRefreshTokenExpiry(), TimeUnit.MILLISECONDS);
 
             return new TokenDto(accessToken, refreshToken);
+        } catch (BadCredentialsException e) {
+            // 아이디 또는 비밀번호가 일치하지 않는 경우
+            System.out.println("Authentication failed: Invalid username or password");
+            throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."); // 사용자에게 명확한 메시지를 던짐
         } catch (Exception e) {
+            // 그 외의 예외 처리
             System.out.println("Authentication failed: " + e.getMessage());
             e.printStackTrace(); // 상세한 스택 트레이스 출력
-            throw new RuntimeException(e); // 원래 예외를 감싸서 던짐
+            throw new RuntimeException("Authentication failed", e); // 원래 예외를 감싸서 던짐
         }
     }
 

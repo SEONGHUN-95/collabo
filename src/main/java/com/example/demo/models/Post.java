@@ -45,6 +45,9 @@ public class Post extends BaseTimeEntity {
     private List<PostTag> postTags = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Like> likes = new HashSet<>();
 
     @Column(nullable = false)
@@ -60,6 +63,16 @@ public class Post extends BaseTimeEntity {
         this.title = title;
         this.content = content;
     }
+
+    public void addImage(String imageUrl) {
+        PostImage image = new PostImage(imageUrl, this);
+        this.images.add(image);
+    }
+
+    public void removeImage(PostImage image) {
+        images.remove(image);
+    }
+
     public void increaseLikeCount() {
         this.likeCount++;
     }
@@ -67,4 +80,5 @@ public class Post extends BaseTimeEntity {
     public void decreaseLikeCount() {
         this.likeCount--;
     }
+
 }

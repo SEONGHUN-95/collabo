@@ -59,7 +59,7 @@ public class UserController {
             TokenDto token = this.authServiceImpl.login(request);
             return ResponseEntity.ok(token);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("INVALID_CREDENTIALS");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디, 비밀번호가 일치하지 않습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }

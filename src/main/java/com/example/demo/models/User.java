@@ -9,7 +9,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
@@ -36,6 +38,10 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "profile_image_id")
+    private ProfileImage profileImage;
+
     @Column(nullable = false)
     private String password;
 
@@ -56,5 +62,17 @@ public class User extends BaseTimeEntity {
         this.email = email;
         this.password = password;
         this.role = RoleType.USER;
+    }
+
+    public void setProfileImage(ProfileImage profileImage) {
+        if (profileImage != null) {
+            this.profileImage = profileImage;
+        }
+    }
+
+    public void removeProfileImage() {
+        if (this.profileImage != null) {
+            this.profileImage = null;
+        }
     }
 }

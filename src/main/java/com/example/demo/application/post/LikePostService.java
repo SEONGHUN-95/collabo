@@ -24,6 +24,11 @@ public class LikePostService {
         Post post = postRepository.findById(postId).orElseThrow(PostNotFound::new);
         User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
 
+        // 이미 좋아요한 경우 중복 방지
+        if (likeRepository.existsByPostIdAndUserId(postId, userId)) {
+            throw new IllegalStateException("이미 좋아요한 게시물입니다.");
+        }
+
         Like like = new Like(user, post);
         likeRepository.save(like);
 
@@ -36,7 +41,9 @@ public class LikePostService {
         Post post = postRepository.findById(postId).orElseThrow(PostNotFound::new);
         User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
 
-        Like like = likeRepository.findByPostAndUser(post, user).orElseThrow();
+        Like like = likeRepository.findByPostIdAndUserId(postId, userId)
+                .orElseThrow(() -> new IllegalStateException("좋아요하지 않은 게시물입니다."));
+
         likeRepository.delete(like);
 
         post.decreaseLikeCount();
