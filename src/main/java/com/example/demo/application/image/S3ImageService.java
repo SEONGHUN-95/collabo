@@ -66,10 +66,8 @@ public class S3ImageService {
     }
 
     private String uploadImageToS3(MultipartFile image) throws IOException {
-        String originalFilename = image.getOriginalFilename(); //원본 파일 명
-        String extention = originalFilename.substring(originalFilename.lastIndexOf(".")); //확장자 명
-
-        String s3FileName = UUID.randomUUID().toString().substring(0, 10) + originalFilename; //변경된 파일 명
+        String extention = image.getOriginalFilename().substring(image.getOriginalFilename().lastIndexOf(".")); //확장자 명
+        String s3FileName = UUID.randomUUID() + extention; // 고유한 파일 명
 
         InputStream is = image.getInputStream();
         byte[] bytes = IOUtils.toByteArray(is);
@@ -93,6 +91,7 @@ public class S3ImageService {
 
         return amazonS3.getUrl(bucketName, s3FileName).toString();
     }
+
 
     public void deleteImageFromS3(String imageAddress) {
         String key = getKeyFromImageAddress(imageAddress);

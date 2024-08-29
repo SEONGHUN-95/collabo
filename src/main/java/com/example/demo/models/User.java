@@ -42,6 +42,7 @@ public class User extends BaseTimeEntity {
     @JoinColumn(name = "profile_image_id")
     private ProfileImage profileImage;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
@@ -64,15 +65,28 @@ public class User extends BaseTimeEntity {
         this.role = RoleType.USER;
     }
 
+    public ProfileImage getProfileImage() {
+        return profileImage;
+    }
+
     public void setProfileImage(ProfileImage profileImage) {
+        // null 값이 아닌 경우에만 새로운 프로필 이미지를 설정
         if (profileImage != null) {
-            this.profileImage = profileImage;
+            // 현재 설정된 프로필 이미지와 다른지 확인
+            if (this.profileImage == null || !this.profileImage.equals(profileImage)) {
+                // 기존 프로필 이미지를 삭제했으므로 바로 새로운 이미지 할당
+                this.profileImage = profileImage;
+            }
         }
     }
 
-    public void removeProfileImage() {
-        if (this.profileImage != null) {
-            this.profileImage = null;
-        }
+    public void updateUsername(String username) {
+        this.username = username;
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
+
 }

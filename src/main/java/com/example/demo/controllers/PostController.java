@@ -76,13 +76,12 @@ public class PostController {
 
     @PatchMapping("/{postId}")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "게시글 수정 (**수정중입니다 08/25)", description = "postId로 수정할 게시글 지정")
+    @Operation(summary = "게시글 수정", description = "postId로 수정할 게시글 지정")
     public void updatePost(Authentication authentication,
                            @PathVariable Long postId,
-                           @RequestPart(value = "post", required = false) PostUpdateDto postUpdateDto,
-                           @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages) {
+                           @RequestBody PostUpdateDto postUpdateDto
+                           ) {
         Long userId = getUserIdFromAuthentication(authentication);
-        postUpdateDto.setNewImages(newImages);  // 새로 추가된 이미지를 DTO에 설정
         updatePostService.updatePost(userId, postId, postUpdateDto);
     }
     @DeleteMapping("/{postId}")
@@ -114,7 +113,6 @@ public class PostController {
     public String postNotFound() {
         return "게시물을 찾을 수 없습니다.";
     }
-
 
     private Long getUserIdFromAuthentication(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
