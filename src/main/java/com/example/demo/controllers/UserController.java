@@ -13,6 +13,7 @@ import com.example.demo.dtos.UserDto;
 import com.example.demo.exceptions.InvalidPassword;
 import com.example.demo.exceptions.PasswordMismatch;
 import com.example.demo.exceptions.TokenNotMatched;
+import com.example.demo.exceptions.UserAlreadyExists;
 import com.example.demo.exceptions.UserNotFound;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +21,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -36,6 +38,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.rmi.UnexpectedException;
 
 @RestController
 @RequestMapping("/users")
@@ -51,7 +56,13 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@RequestBody UserCreateDto userCreateDto) {
-        userService.createUser(userCreateDto.username(), userCreateDto.email(), userCreateDto.password());
+        try {
+            userService.createUser(userCreateDto.username(), userCreateDto.email(), userCreateDto.password());
+        } catch (UserAlreadyExists e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        } catch (UnexpectedException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     @Operation(summary = "로그인", description = "사용자를 인증 후 AT, RT을 발급합니다.")
@@ -123,8 +134,8 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "사용자이름, 프로필 사진 변경", description = "이름은 JSON, 프사는 multipart로 전송 필요 둘 중 하나만 보내도 변경 가능")
-    @PatchMapping("/profile")
+    @Operation(summary = "사용자 이름, 프로필 사진 변경", description = "둘 중 하나만 올려도 변경 가능.")
+    @PatchMapping(value = "/profile", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> updateProfile(@RequestParam(value = "name", required = false) String name,
                                            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
                                            Authentication authentication) {

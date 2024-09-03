@@ -17,6 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.rmi.UnexpectedException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -24,16 +28,27 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final S3ImageService s3ImageService;
 
-    public void createUser(String username, String email, String password) {
-        String encodedPassword = passwordEncoder.encode(password);
-        User user = new User(username, email, encodedPassword);
-        String defaultImageUrl = "https://testbucketinthehouse.s3.ap-northeast-2.amazonaws.com/profile_image.jpeg";
-        ProfileImage defaultProfileImage = new ProfileImage(defaultImageUrl);
-        user.setProfileImage(defaultProfileImage);
+    public void createUser(String username, String email, String password) throws UnexpectedException {
         try {
+            // 비밀번호 암호화
+            String encodedPassword = passwordEncoder.encode(password);
+
+            // 사용자 생성
+            User user = new User(username, email, encodedPassword);
+
+            // 기본 프로필 이미지 설정
+            String defaultImageUrl = "https://testbucketinthehouse.s3.ap-northeast-2.amazonaws.com/profile_image.jpeg";
+            ProfileImage defaultProfileImage = new ProfileImage(defaultImageUrl);
+            user.setProfileImage(defaultProfileImage);
+
+            // 사용자 저장
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExists();
+            // 중복된 사용자 이름 또는 이메일이 존재할 때 발생하는 예외 처리
+            throw new UserAlreadyExists("Username or email already exists.", e);
+        } catch (Exception e) {
+            // 예상치 못한 모든 예외에 대한 처리
+            throw new UnexpectedException("An unexpected error occurred during user creation.", e);
         }
     }
 
@@ -93,7 +108,22 @@ public class UserService {
 
         String profileImageUrl = (user.getProfileImage() != null) ? user.getProfileImage().getImageUrl() : null;
 
-        UserDto userDto = new UserDto(user.getEmail(), user.getUsername(), profileImageUrl);
-        return userDto;
+        // followers와 following을 String 리스트로 변환
+        List<String> followers = user.getFollowers().stream()
+                .map(follow -> follow.getFollower().getUsername()) // 팔로워의 username 추출
+                .collect(Collectors.toList());
+
+        List<String> following = user.getFollowing().stream()
+                .map(follow -> follow.getFollowing().getUsername()) // 팔로잉한 사용자의 username 추출
+                .collect(Collectors.toList());
+
+        return new UserDto(
+                user.getEmail(),
+                user.getUsername(),
+                profileImageUrl,
+                followers,
+                following
+        );
     }
+
 }

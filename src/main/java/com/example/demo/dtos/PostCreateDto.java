@@ -1,20 +1,15 @@
 package com.example.demo.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
+@Schema(description = "게시글 생성 정보")
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostCreateDto {
     private String title;
     private String content;
-    private List<MultipartFile> images;
-
 }

@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@Tag(name = "사진 업로드API")
+@Tag(name = "(테스트용)사진 업로드API")
 public class ImageController {
     private final S3ImageService s3ImageService;
 

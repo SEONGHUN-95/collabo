@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
@@ -57,6 +58,13 @@ public class User extends BaseTimeEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
+
+
+    @OneToMany(mappedBy = "follower")
+    private List<Follow> following;
+
+    @OneToMany(mappedBy = "following")
+    private List<Follow> followers;
 
     public User(String username, String email, String password) {
         this.username = username;

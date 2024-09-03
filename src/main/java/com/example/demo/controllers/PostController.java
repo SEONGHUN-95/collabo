@@ -14,7 +14,10 @@ import com.example.demo.exceptions.AuthenticationException;
 import com.example.demo.exceptions.PostNotFound;
 import com.example.demo.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -63,15 +66,14 @@ public class PostController {
         return postDto;
     }
 
-    @PostMapping()
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "게시글 쓰기")
     public void createPost(Authentication authentication,
-                           @RequestPart("post") PostCreateDto postCreateDto,
-                           @RequestPart("images") List<MultipartFile> images) {
+                           @RequestPart("post") @Valid PostCreateDto postCreateDto,
+                           @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         Long userId = getUserIdFromAuthentication(authentication);
-        postCreateDto.setImages(images);
-        createPostService.createPost(userId, postCreateDto);
+        createPostService.createPost(userId, postCreateDto, images);
     }
 
     @PatchMapping("/{postId}")
