@@ -28,18 +28,7 @@ public class SearchController {
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String keyword) {
 
-        // 검색 조건이 모두 없으면 예외 처리
-        if (username == null && keyword == null) {
-            throw new IllegalArgumentException("검색 조건을 하나 이상 입력해야 합니다.");
-        }
-
-        // 사용자 이름으로 검색
-        if (username != null) {
-            return getPostsService.getPostDtosByUsername(username);
-        }
-
-        // 키워드로 검색
-        return getPostsService.getPostDtosByKeyword(keyword);
+        return getPostsService.searchPosts(username, keyword);
     }
 }
 

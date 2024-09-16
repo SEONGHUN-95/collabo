@@ -4,6 +4,7 @@ import com.amazonaws.services.cloudformation.model.NameAlreadyExistsException;
 import com.example.demo.application.image.S3ImageService;
 import com.example.demo.dtos.PasswordUpdateDto;
 import com.example.demo.dtos.UserDto;
+import com.example.demo.exceptions.HandleGeneralException;
 import com.example.demo.exceptions.InvalidPassword;
 import com.example.demo.exceptions.PasswordMismatch;
 import com.example.demo.exceptions.UserAlreadyExists;
@@ -28,33 +29,24 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final S3ImageService s3ImageService;
 
-    public void createUser(String username, String email, String password) throws UnexpectedException {
+    public void createUser(String username, String email, String password) {
         try {
-            // 비밀번호 암호화
             String encodedPassword = passwordEncoder.encode(password);
-
-            // 사용자 생성
             User user = new User(username, email, encodedPassword);
-
-            // 기본 프로필 이미지 설정
             String defaultImageUrl = "https://testbucketinthehouse.s3.ap-northeast-2.amazonaws.com/profile_image.jpeg";
             ProfileImage defaultProfileImage = new ProfileImage(defaultImageUrl);
             user.setProfileImage(defaultProfileImage);
-
-            // 사용자 저장
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            // 중복된 사용자 이름 또는 이메일이 존재할 때 발생하는 예외 처리
-            throw new UserAlreadyExists("Username or email already exists.", e);
+            throw new UserAlreadyExists("이미 존재하는 사용자입니다.", e);
         } catch (Exception e) {
-            // 예상치 못한 모든 예외에 대한 처리
-            throw new UnexpectedException("An unexpected error occurred during user creation.", e);
+            throw new HandleGeneralException("알 수 없는 오류가 발생했습니다.", e);
         }
     }
 
     public void updatePassword(String email, PasswordUpdateDto passwordUpdateDto) {
         User user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new UserNotFound("User not found with email: " + email));
+                .orElseThrow(() -> new UserNotFound("사용자를 찾지 못했습니다.: " + email));
 
         if (!passwordEncoder.matches(passwordUpdateDto.currentPassword(), user.getPassword())) {
             throw new InvalidPassword("비밀번호가 일치하지 않습니다.");
@@ -81,18 +73,15 @@ public class UserService {
         User user = userRepository.findUserByEmail(currentUsername)
                 .orElseThrow(() -> new UserNotFound("사용자를 찾지 못했습니다."));
 
-        // 이름 업데이트
         if (name != null && !name.isEmpty()) {
             if (!name.equals(user.getUsername()) && userRepository.existsByUsername(name)) {
-                throw new NameAlreadyExistsException("The name '" + name + "' is already taken.");
+                throw new NameAlreadyExistsException("이름 '" + name + "'은 이미 있는 이름입니다.");
             }
             user.updateUsername(name);
         }
 
-        // 프로필 이미지 업데이트
         if (profileImage != null && !profileImage.isEmpty()) {
 
-            // 새로운 프로필 이미지 생성
             String imageUrl = s3ImageService.upload(profileImage);
             ProfileImage newProfileImage = new ProfileImage(imageUrl);
             user.setProfileImage(newProfileImage);
