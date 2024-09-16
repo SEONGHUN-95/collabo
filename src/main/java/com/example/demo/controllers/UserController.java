@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -120,9 +121,9 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "사용자 정보 불러오기", description = "내 정보 보여주기")
+    @Operation(summary = "내 정보 불러오기", description = "내 정보 보여주기")
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(Authentication authentication) {
+    public ResponseEntity<?> getMyProfile(Authentication authentication) {
         try {
             String currentUsername = authentication.getName();
             UserDto userDto = userService.getUserProfile(currentUsername);
@@ -134,8 +135,21 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "사용자 정보 불러오기", description = "해당 사용자 정보 보기")
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<?> getUserProfile(@PathVariable Long userId) {
+        try {
+            UserDto userDto = userService.getUserProfile(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(userDto);
+        } catch (UserNotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾지 못했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("알 수 없는 오류 발생");
+        }
+    }
+
     @Operation(summary = "사용자 이름, 프로필 사진 변경", description = "둘 중 하나만 올려도 변경 가능.")
-    @PatchMapping(value = "/profile", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PatchMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateProfile(@RequestParam(value = "name", required = false) String name,
                                            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
                                            Authentication authentication) {

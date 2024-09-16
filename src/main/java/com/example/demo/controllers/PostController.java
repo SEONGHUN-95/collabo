@@ -1,6 +1,5 @@
 package com.example.demo.controllers;
 
-import com.example.demo.application.image.S3ImageService;
 import com.example.demo.application.post.CreatePostService;
 import com.example.demo.application.post.DeletePostService;
 import com.example.demo.application.post.GetPostService;
@@ -14,8 +13,6 @@ import com.example.demo.exceptions.AuthenticationException;
 import com.example.demo.exceptions.PostNotFound;
 import com.example.demo.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,10 +47,10 @@ public class PostController {
     private final UpdatePostService updatePostService;
     private final DeletePostService deletePostService;
     private final LikePostService likePostService;
-    private final S3ImageService s3ImageService;
 
     @GetMapping
     @Operation(summary = "전체 posts 받아오기", description = "jwt의 name과 postdto의 email을 대조하여 수정/삭제 버튼 구현 필요")
+    @ResponseStatus(HttpStatus.OK)
     public List<PostDto> getPosts() {
         List<PostDto> postDtoList = getPostsService.getPostDtos();
         return postDtoList;
@@ -66,7 +63,7 @@ public class PostController {
         return postDto;
     }
 
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "게시글 쓰기")
     public void createPost(Authentication authentication,
@@ -82,10 +79,11 @@ public class PostController {
     public void updatePost(Authentication authentication,
                            @PathVariable Long postId,
                            @RequestBody PostUpdateDto postUpdateDto
-                           ) {
+    ) {
         Long userId = getUserIdFromAuthentication(authentication);
         updatePostService.updatePost(userId, postId, postUpdateDto);
     }
+
     @DeleteMapping("/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "게시글 삭제")

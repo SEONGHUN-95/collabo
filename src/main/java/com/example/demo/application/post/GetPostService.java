@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GetPostService {
     private final PostRepository postRepository;
+
     public PostDto getPostDto(Long id) {
         Post post = postRepository.findById(id).orElseThrow(PostNotFound::new);
         return new PostDto(post);

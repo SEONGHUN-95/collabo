@@ -1,10 +1,8 @@
 package com.example.demo.application.post;
 
-import com.example.demo.application.image.S3ImageService;
 import com.example.demo.dtos.PostUpdateDto;
 import com.example.demo.exceptions.PostNotFound;
 import com.example.demo.models.Post;
-import com.example.demo.repositories.PostImageRepository;
 import com.example.demo.repositories.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,8 +12,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UpdatePostService {
     private final PostRepository postRepository;
-    private final PostImageRepository postImageRepository;
-    private final S3ImageService s3ImageService;
 
     public void updatePost(Long userId, Long id, PostUpdateDto postUpdateDto) {
 

@@ -102,28 +102,31 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserDto getUserProfile(String currentUsername) {
-        User user = userRepository.findUserByEmail(currentUsername)
+    public UserDto getUserProfile(String email) {
+        User user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UserNotFound("사용자를 찾지 못했습니다."));
+        return mapToUserDto(user);
+    }
 
+    public UserDto getUserProfile(Long userId) {
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new UserNotFound("사용자를 찾지 못했습니다."));
+        return mapToUserDto(user);
+    }
+
+    private UserDto mapToUserDto(User user) {
         String profileImageUrl = (user.getProfileImage() != null) ? user.getProfileImage().getImageUrl() : null;
 
-        // followers와 following을 String 리스트로 변환
         List<String> followers = user.getFollowers().stream()
-                .map(follow -> follow.getFollower().getUsername()) // 팔로워의 username 추출
+                .map(follow -> follow.getFollower().getUsername())
                 .collect(Collectors.toList());
 
         List<String> following = user.getFollowing().stream()
-                .map(follow -> follow.getFollowing().getUsername()) // 팔로잉한 사용자의 username 추출
+                .map(follow -> follow.getFollowing().getUsername())
                 .collect(Collectors.toList());
 
-        return new UserDto(
-                user.getEmail(),
-                user.getUsername(),
-                profileImageUrl,
-                followers,
-                following
-        );
+        return new UserDto(user.getEmail(), user.getUsername(), profileImageUrl, followers, following);
     }
+
 
 }
