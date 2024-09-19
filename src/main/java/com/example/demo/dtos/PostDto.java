@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 public record PostDto(
         String id,
         Long userId,
+        String profileImageUrl,
         String username,
         String title,
         String content,
@@ -20,6 +21,7 @@ public record PostDto(
         this(
                 post.getId().toString(),
                 post.getUser().getId(),
+                post.getUser().getProfileImage().toString(),
                 post.getUser().getUsername(),
                 post.getTitle(),
                 post.getContent(),

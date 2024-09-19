@@ -21,14 +21,20 @@ import java.util.List;
 public class SearchController {
     private final GetPostsService getPostsService;
 
-    // 검색 조건에 따른 게시물 검색 (사용자 이름 또는 키워드)
-    @GetMapping
-    @Operation(summary = "게시물 검색", description = "사용자 이름 또는 키워드로 게시물 검색")
-    public List<PostDto> searchPosts(
-            @RequestParam(required = false) String username,
-            @RequestParam(required = false) String keyword) {
+    @GetMapping("/author")
+    @Operation(summary = "사용자 이름으로 게시물 검색", description = "비어있으면 예외 발생합니다.")
+    public List<PostDto> searchPostsByUsername(
+            @RequestParam(required = false) String username) {
 
-        return getPostsService.searchPosts(username, keyword);
+        return getPostsService.getPostDtosByUsername(username);
     }
+
+    @GetMapping("/title")
+    @Operation(summary = "제목으로 게시물 검색", description = "비어있으면 예외 발생합니다.")
+    public List<PostDto> searchPostsByTitle(
+            @RequestParam(required = false) String title) {
+        return getPostsService.getPostDtosByKeyword(title);
+    }
+
 }
 
