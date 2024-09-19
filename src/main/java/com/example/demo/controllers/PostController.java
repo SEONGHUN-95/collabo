@@ -49,7 +49,7 @@ public class PostController {
     private final LikePostService likePostService;
 
     @GetMapping
-    @Operation(summary = "전체 posts 받아오기", description = "jwt의 name과 postdto의 email을 대조하여 수정/삭제 버튼 구현 필요")
+    @Operation(summary = "전체 posts 받아오기")
     @ResponseStatus(HttpStatus.OK)
     public List<PostDto> getPosts() {
         List<PostDto> postDtoList = getPostsService.getPostDtos();
@@ -57,7 +57,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    @Operation(summary = "특정 게시글 받아오기", description = "jwt의 name과 postdto의 email을 대조하여 수정/삭제 버튼 구현 필요")
+    @Operation(summary = "특정 게시글 받아오기")
     public PostDto getPost(@PathVariable Long postId) {
         PostDto postDto = getPostService.getPostDto(postId);
         return postDto;

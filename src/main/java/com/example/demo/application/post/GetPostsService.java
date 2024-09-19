@@ -15,10 +15,6 @@ public class GetPostsService {
 
     public List<PostDto> getPostDtos() {
         List<Post> posts = postRepository.findAll();
-        if (posts.isEmpty()) {
-            throw new IllegalStateException("게시물을 찾을 수 없습니다.");
-        }
-
         return posts.stream().map(PostDto::new).toList();
     }
 

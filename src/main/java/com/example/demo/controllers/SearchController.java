@@ -25,7 +25,6 @@ public class SearchController {
     @Operation(summary = "사용자 이름으로 게시물 검색", description = "비어있으면 예외 발생합니다.")
     public List<PostDto> searchPostsByUsername(
             @RequestParam(required = false) String username) {
-
         return getPostsService.getPostDtosByUsername(username);
     }
 
